@@ -1,5 +1,5 @@
 """
-Project 1 — Two-Tier Flask Application
+Flask + PostgreSQL Two-Tier
 Author: Yashas Suresh (https://github.com/yashassuresh775)
 Web tier (Flask) + data tier (PostgreSQL).
 """
@@ -70,7 +70,7 @@ def index():
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Project 1 — Two-Tier Flask</title>
+  <title>Flask + PostgreSQL Two-Tier</title>
   <style>
     body { font-family: Georgia, serif; max-width: 40rem; margin: 3rem auto; padding: 0 1rem; color: #1a1a1a; }
     h1 { font-weight: 400; letter-spacing: -0.02em; }
@@ -79,7 +79,7 @@ def index():
   </style>
 </head>
 <body>
-  <h1>Project 1 — Two-Tier Flask</h1>
+  <h1>Flask + PostgreSQL Two-Tier</h1>
   <p>Flask web tier backed by PostgreSQL. Try <code>/api/health</code> and <code>/api/messages</code>.</p>
   <p>Author: <a href="https://github.com/yashassuresh775">Yashas Suresh</a></p>
 </body>

@@ -1,4 +1,4 @@
-# Project 1 — Two-Tier Flask
+# Flask + PostgreSQL Two-Tier
 
 Original two-tier web application: **Flask** (web) + **PostgreSQL 16** (data).
 
@@ -97,7 +97,7 @@ Create a message:
 ```bash
 curl -s -X POST http://localhost:8080/api/messages \
   -H 'Content-Type: application/json' \
-  -d '{"text":"hello from Project 1"}'
+  -d '{"text":"hello from Flask + PostgreSQL Two-Tier"}'
 ```
 
 ## License
