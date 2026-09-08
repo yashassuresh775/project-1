@@ -23,26 +23,27 @@ cp .env.example .env
 docker compose up --build
 ```
 
-Open [http://localhost:5000](http://localhost:5000) for the health HTML page.
+Open [http://localhost:8080](http://localhost:8080) for the health HTML page.
+(Host port **8080** avoids macOS AirPlay often binding to 5000.)
 
 ## API examples
 
 Health check:
 
 ```bash
-curl -s http://localhost:5000/api/health
+curl -s http://localhost:8080/api/health
 ```
 
 List messages:
 
 ```bash
-curl -s http://localhost:5000/api/messages
+curl -s http://localhost:8080/api/messages
 ```
 
 Create a message:
 
 ```bash
-curl -s -X POST http://localhost:5000/api/messages \
+curl -s -X POST http://localhost:8080/api/messages \
   -H 'Content-Type: application/json' \
   -d '{"text":"hello from Project 1"}'
 ```

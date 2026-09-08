@@ -92,7 +92,14 @@ def index():
 
 @app.route("/api/health")
 def health():
-    return jsonify({"status": "ok"})
+    try:
+        with get_conn() as conn:
+            with conn.cursor() as cur:
+                cur.execute("SELECT 1")
+                cur.fetchone()
+        return jsonify({"status": "ok", "database": "up"})
+    except psycopg2.Error as exc:
+        return jsonify({"status": "degraded", "database": "down", "detail": str(exc)}), 503
 
 
 @app.route("/api/messages", methods=["GET"])
