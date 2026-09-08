@@ -1,0 +1,26 @@
+#!/bin/bash
+set -euo pipefail
+exec > >(tee /var/log/user-data.log) 2>&1
+
+apt-get update -y
+DEBIAN_FRONTEND=noninteractive apt-get upgrade -y
+apt-get install -y git curl ca-certificates docker.io docker-compose-v2 openjdk-17-jdk gnupg
+
+systemctl enable --now docker
+usermod -aG docker ubuntu
+
+curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key \
+  | tee /usr/share/keyrings/jenkins-keyring.asc >/dev/null
+echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/" \
+  > /etc/apt/sources.list.d/jenkins.list
+apt-get update -y
+DEBIAN_FRONTEND=noninteractive apt-get install -y jenkins
+usermod -aG docker jenkins
+systemctl enable --now jenkins
+systemctl restart jenkins
+
+# Clone app for operators (Jenkins Pipeline from SCM will also clone)
+install -d -o ubuntu -g ubuntu /opt/app
+sudo -u ubuntu git clone ${repo_url} /opt/app/flask-postgresql-two-tier || true
+
+echo "Bootstrap complete. Configure Jenkins UI and create Pipeline job."
