@@ -4,18 +4,26 @@ exec > >(tee /var/log/user-data.log) 2>&1
 
 apt-get update -y
 DEBIAN_FRONTEND=noninteractive apt-get upgrade -y
-apt-get install -y git curl ca-certificates docker.io docker-compose-v2 openjdk-17-jdk gnupg
+apt-get install -y git curl ca-certificates docker.io docker-compose-v2 openjdk-21-jdk gnupg
 
 systemctl enable --now docker
 usermod -aG docker ubuntu
 
-curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key \
-  | tee /usr/share/keyrings/jenkins-keyring.asc >/dev/null
-echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/" \
+# Current Jenkins apt signing key (fingerprint 7198F4B714ABFC68)
+gpg --batch --keyserver keyserver.ubuntu.com --recv-keys 7198F4B714ABFC68
+gpg --batch --export 7198F4B714ABFC68 > /usr/share/keyrings/jenkins-keyring.gpg
+echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.gpg] https://pkg.jenkins.io/debian-stable binary/" \
   > /etc/apt/sources.list.d/jenkins.list
 apt-get update -y
 DEBIAN_FRONTEND=noninteractive apt-get install -y jenkins
+mkdir -p /etc/systemd/system/jenkins.service.d
+cat >/etc/systemd/system/jenkins.service.d/java21.conf <<'EOF'
+[Service]
+Environment="JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64"
+Environment="PATH=/usr/lib/jvm/java-21-openjdk-amd64/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+EOF
 usermod -aG docker jenkins
+systemctl daemon-reload
 systemctl enable --now jenkins
 systemctl restart jenkins
 

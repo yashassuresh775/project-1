@@ -1,23 +1,28 @@
 #!/usr/bin/env bash
-# Step 3 — Install Jenkins + OpenJDK 17 on Ubuntu 22.04 EC2.
+# Step 3 — Install Jenkins + OpenJDK 21 on Ubuntu 22.04 EC2.
 set -euo pipefail
 
-echo "==> Installing OpenJDK 17"
+echo "==> Installing OpenJDK 21 (required by current Jenkins LTS)"
 sudo apt-get update -y
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -y openjdk-17-jdk curl gnupg
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y openjdk-21-jdk curl gnupg
 
-echo "==> Adding Jenkins apt repository"
-curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key \
-  | sudo tee /usr/share/keyrings/jenkins-keyring.asc >/dev/null
-echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/" \
+echo "==> Adding Jenkins apt repository (current signing key)"
+sudo rm -f /etc/apt/sources.list.d/jenkins.list /usr/share/keyrings/jenkins-keyring.*
+gpg --batch --keyserver keyserver.ubuntu.com --recv-keys 7198F4B714ABFC68
+gpg --batch --export 7198F4B714ABFC68 | sudo tee /usr/share/keyrings/jenkins-keyring.gpg >/dev/null
+echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.gpg] https://pkg.jenkins.io/debian-stable binary/" \
   | sudo tee /etc/apt/sources.list.d/jenkins.list >/dev/null
 
 echo "==> Installing Jenkins"
 sudo apt-get update -y
 sudo DEBIAN_FRONTEND=noninteractive apt-get install -y jenkins
 
-echo "==> Grant Jenkins Docker access"
+echo "==> Point Jenkins at Java 21 + grant Docker access"
+sudo mkdir -p /etc/systemd/system/jenkins.service.d
+printf '%s\n' '[Service]' 'Environment="JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64"' 'Environment="PATH=/usr/lib/jvm/java-21-openjdk-amd64/bin:/usr/sbin:/usr/bin:/sbin:/bin"' \
+  | sudo tee /etc/systemd/system/jenkins.service.d/java21.conf >/dev/null
 sudo usermod -aG docker jenkins
+sudo systemctl daemon-reload
 sudo systemctl enable --now jenkins
 sudo systemctl restart jenkins
 
